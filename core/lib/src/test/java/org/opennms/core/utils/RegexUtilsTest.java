@@ -26,35 +26,21 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.core.rpc.utils.mate;
+package org.opennms.core.utils;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Matcher;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 
-public class PatternScope implements Scope {
-    private final String context;
-    private final Matcher matcher;
+import org.junit.Test;
 
-    public PatternScope(final String context, final Matcher matcher) {
-        this.context = Objects.requireNonNull(context);
-        this.matcher = Objects.requireNonNull(matcher);
-    }
+public class RegexUtilsTest {
 
-    @Override
-    public Optional<String> get(final ContextKey contextKey) {
-        if (Objects.equals(this.context, contextKey.context)) {
-
-        }
-
-        return Optional.empty();
-    }
-
-    @Override
-    public Set<ContextKey> keys() {
-        // We can't figure out the available keys here...
-        return Collections.emptySet();
+    @Test
+    public void canParseNamedCaptureGroupsFromPattern() {
+        assertThat(RegexUtils.getNamedCaptureGroupsFromPattern(""), hasSize(0));
+        assertThat(RegexUtils.getNamedCaptureGroupsFromPattern("(?<user>.*)"), contains("user"));
+        assertThat(RegexUtils.getNamedCaptureGroupsFromPattern("Node /(?<poolName>.*?)/(?<poolMember>\\S+) address (?<poolAddr>\\S+) monitor status down. .*\\(slot(?<slotNum>[0-9]+)\\)"),
+                contains("poolName", "poolMember", "poolAddr", "slotNum"));
     }
 }
