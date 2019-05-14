@@ -71,7 +71,7 @@
                                         </form:select>
                                     </c:when>
                                     <c:otherwise>
-                                        <form:input cssClass="form-control custom-select" path="stringParms[${stringParmRow.index}].value"/>
+                                        <form:input cssClass="form-control" path="stringParms[${stringParmRow.index}].value"/>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
