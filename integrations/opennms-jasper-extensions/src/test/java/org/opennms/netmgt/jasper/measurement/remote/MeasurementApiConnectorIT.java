@@ -37,12 +37,6 @@ import java.nio.charset.StandardCharsets;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 
-import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.google.common.io.ByteStreams;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -53,6 +47,12 @@ import org.opennms.core.test.LoggingEvent;
 import org.opennms.core.test.MockLogAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.google.common.io.ByteStreams;
 
 /**
  * Verifies that the {@link MeasurementApiClient} connects accordingly to the OpenNMS Measurement API and may
@@ -190,12 +190,11 @@ public class MeasurementApiConnectorIT {
         new MeasurementApiClient().execute(false, "http://localhost:1234/opennms/rest/measurements", null, null, "<dummy request>");
     }
 
-
     // We connect and expect a timeout.
     // We also verify that the timeout is as defined (including a tolerance)
     @Test(expected=SocketTimeoutException.class)
     public void testTimeout() throws IOException {
-        WireMock.addRequestProcessingDelay(5000);
+        WireMock.setGlobalFixedDelay(5000);
         long start = System.currentTimeMillis();
         try {
             new MeasurementApiClient(MeasurementApiClient.CONNECT_TIMEOUT, 2500).execute(false, "http://localhost:9999/opennms/rest/measurements", null, null, "<dummy request>");

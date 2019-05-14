@@ -30,12 +30,13 @@ package org.opennms.netmgt.jasper;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opennms.netmgt.jasper.grafana.GrafanaExecutorFactory;
 import org.opennms.netmgt.jasper.measurement.MeasurementExecutorFactory;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.query.QueryExecuterFactory;
 
-public class OnmsQueryExecutorFactoryBundleTest {
+public class QueryExecutorFactoryBundleTest {
 
     @Test
     public void verifyJrobinNotSupported() throws JRException {
@@ -62,8 +63,13 @@ public class OnmsQueryExecutorFactoryBundleTest {
         verifyLanguage("measurement", true, MeasurementExecutorFactory.class);
     }
 
+    @Test
+    public void verifyGrafanaSupported() throws JRException {
+        verifyLanguage("grafana", true, GrafanaExecutorFactory.class);
+    }
+
     private static void verifyLanguage(String language, boolean supported, Class<?> expectedFactoryClass) throws JRException {
-        final OnmsQueryExecutorFactoryBundle executorBundle = new OnmsQueryExecutorFactoryBundle();
+        final QueryExecutorFactoryBundle executorBundle = new QueryExecutorFactoryBundle();
         final QueryExecuterFactory factory = executorBundle.getQueryExecuterFactory(language);
         Assert.assertEquals(supported, factory != null);
         if (supported) {

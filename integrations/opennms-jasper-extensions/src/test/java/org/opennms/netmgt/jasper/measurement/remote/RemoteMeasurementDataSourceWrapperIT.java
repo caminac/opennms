@@ -28,17 +28,18 @@
 
 package org.opennms.netmgt.jasper.measurement.remote;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRRewindableDataSource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.opennms.netmgt.jasper.measurement.EmptyJRDataSource;
 import org.opennms.netmgt.jasper.measurement.MeasurementDataSource;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRRewindableDataSource;
 
 public class RemoteMeasurementDataSourceWrapperIT {
     @Rule
@@ -100,7 +101,7 @@ public class RemoteMeasurementDataSourceWrapperIT {
             Assert.fail("JRException was expected, but was not thrown");
         } catch (JRException jre) {
             Assert.assertTrue(jre.toString().contains("Invalid request. Response was"));
-            Assert.assertTrue(jre.toString().contains("500 (Internal Server Error)"));
+            Assert.assertTrue(jre.toString().contains("500 (Server Error)"));
             Assert.assertTrue(jre.toString().endsWith("This did not work as you might have expected, ugh?"));
         }
     }

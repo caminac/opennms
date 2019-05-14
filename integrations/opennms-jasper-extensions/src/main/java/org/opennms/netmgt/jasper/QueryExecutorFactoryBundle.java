@@ -32,7 +32,7 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.query.JRQueryExecuterFactoryBundle;
 import net.sf.jasperreports.engine.query.QueryExecuterFactory;
 
-public class OnmsQueryExecutorFactoryBundle implements JRQueryExecuterFactoryBundle {
+public class QueryExecutorFactoryBundle implements JRQueryExecuterFactoryBundle {
     
     @Override
     public String[] getLanguages() {
