@@ -1,10 +1,5 @@
 const angular = require('vendor/angular-js');
-const elementList = require('../onms-elementList/lib/elementList');
-require('../../lib/onms-pagination');
 require('../../lib/onms-http');
-require('angular-bootstrap-confirm');
-require('angular-bootstrap-toggle/dist/angular-bootstrap-toggle');
-require('angular-bootstrap-toggle/dist/angular-bootstrap-toggle.css');
 require('angular-ui-router');
 
 const indexTemplate  = require('./index.html');
@@ -19,13 +14,7 @@ const onlineTemplate  = require('./online-report.html');
             'angular-loading-bar',
             'ngResource',
             'ui.router',
-            'ui.bootstrap',
-            'ui.checkbox',
-            'ui.toggle',
             'onms.http',
-            'onms.elementList',
-            'mwl.confirm',
-            'onms.pagination'
         ])
         .config( ['$locationProvider', function ($locationProvider) {
             $locationProvider.hashPrefix('!');
@@ -53,6 +42,13 @@ const onlineTemplate  = require('./online-report.html');
                 }
             );
         })
+        .factory('GrafanaService', function($resource) {
+            return $resource('rest/endpoints/grafana/:id', {},
+                {
+                    'list':         { method: 'GET', isArray:true },
+                    'dashboards':   { method: 'GET', isArray:true},
+                });
+        })
         .controller('ReportsController', ['$scope', '$http', 'ReportsService', function($scope, $http, ReportsService) {
             $scope.refresh = function() {
                 $scope.reports = [];
@@ -71,7 +67,7 @@ const onlineTemplate  = require('./online-report.html');
 
             $scope.refresh();
         }])
-        .controller('ReportsOnlineController', ['$scope', '$http', '$window', '$stateParams', 'ReportsService', function($scope, $http, $window, $stateParams, ReportsService) {
+        .controller('ReportsOnlineController', ['$scope', '$http', '$window', '$stateParams', 'ReportsService', 'GrafanaService', function($scope, $http, $window, $stateParams, ReportsService, GrafanaService) {
             $scope.loadDetails = function() {
                 $scope.loading = true;
                 $scope.loading = false;
@@ -80,6 +76,9 @@ const onlineTemplate  = require('./online-report.html');
                 $scope.formats = [];
                 $scope.format = "PDF";
                 $scope.parameters = [];
+                $scope.endpoints = [];
+                $scope.dashboards = [];
+
                 ReportsService.get({id:$stateParams.id}, function(response) {
                     $scope.loading = false;
                     $scope.surveillanceCategories = response.surveillanceCategories;
@@ -93,11 +92,25 @@ const onlineTemplate  = require('./online-report.html');
                         return order.indexOf(left.type) - order.indexOf(right.type);
                     });
 
-                    console.log("RESPONSE", response);
+                    console.log("SUCCESS", response);
                 }, function(response) {
                     $scope.loading = false;
                     console.log("ERROR", response);
                 });
+
+                GrafanaService.list(function(response) {
+                    console.log("SUCCESS", response);
+                    $scope.endpoints = response;
+                }, function(response) {
+                    console.log("ERROR", response);
+                });
+
+                GrafanaService.dashboards({id: 'GRAFANA_1'}, function(response) {
+                    console.log("SUCCESS", response);
+                    $scope.dashboards = response;
+                }, function(response) {
+                    console.log("ERROR", response);
+                })
             };
 
             // TODO MVR use ReportsService for this, but somehow only $http works :-/

@@ -1,0 +1,49 @@
+<div class="">
+    <div class="alert alert-danger" ng-if="globalError">
+        {{globalError}}
+    </div>
+    <span ng-if="endpoints.length == 0">No Data available</span>
+
+    <button class="btn btn-primary" title="Add new endpoint" ng-click="addNewEndpoint()"><i class="fa fa-plus"></i></button>
+    <button class="btn btn-primary" title="Reload Page" ng-click="refresh()"><i class="fa fa-refresh"></i></button>
+
+    <table class="table table-sm table-striped" ng-if="endpoints.length > 0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>URL</th>
+                <th>API Key</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="endpoint in endpoints">
+                <td>{{endpoint.id}}</td>
+                <td>
+                    <span class="badge badge-primary">{{endpoint.type}}</span>
+                </td>
+                <td>{{endpoint.label}}</span></td>
+                <td>{{endpoint.description}}</td>
+                <td>{{endpoint.url}}</td>
+                <td>
+                    <span ng-show="endpoint.revealApiKey === true">{{endpoint.apiKey}}</span>
+                    <span ng-show="endpoint.revealApiKey === false">**********</span>
+                    <!-- TODO MVR make it appear always at the same location to not have it "flip around" -->
+                    <button class="btn btn-link">
+                        <i ng-class="{'fa-eye': endpoint.revealApiKey === false, 'fa-eye-slash': endpoint.revealApiKey === true}" class="fa" ng-click="endpoint.revealApiKey = !endpoint.revealApiKey"></i>
+                    </button>
+                </td>
+                <!-- TODO MVR add confirmation dialog? -->
+                <td>
+                    <button class="btn btn-danger btn-sm" ng-click="deleteEndpoint(endpoint)" title="Delete Endpoint"><i class="fa fa-trash"></i></button>
+                    <button class="btn btn-secondary btn-sm" ng-click="editEndpoint(endpoint)" title="Delete Endpoint"><i class="fa fa-pencil"></i></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <span class="text-muted">{{endpoints.length}} Endpoint(s)</span>
+</div>
+<div class=""></div>

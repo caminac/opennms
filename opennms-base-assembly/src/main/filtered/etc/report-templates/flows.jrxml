@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2019-04-25T23:25:05 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" pageWidth="1190" pageHeight="1684" columnWidth="1150" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9967c600-878d-4d17-9b00-8ca2f00e9c39">
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="NEW_DATAADAPTER.xml"/>
+    <property name="com.jaspersoft.studio.unit." value="pixel"/>
+    <style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+    <parameter name="startDate" class="java.util.Date">
+        <parameterDescription><![CDATA[Report Start Date]]></parameterDescription>
+        <defaultValueExpression><![CDATA[new java.util.Date(
+new GregorianCalendar(new GregorianCalendar().get(Calendar.YEAR), new GregorianCalendar().get(Calendar.MONTH), new GregorianCalendar().get(Calendar.DATE) - 1).getTimeInMillis()
+)]]></defaultValueExpression>
+    </parameter>
+    <parameter name="endDate" class="java.util.Date">
+        <parameterDescription><![CDATA[Report End Date]]></parameterDescription>
+        <defaultValueExpression><![CDATA[new java.util.Date(
+new GregorianCalendar(new GregorianCalendar().get(Calendar.YEAR), new GregorianCalendar().get(Calendar.MONTH), new GregorianCalendar().get(Calendar.DATE)).getTimeInMillis()
+)]]></defaultValueExpression>
+    </parameter>
+    <parameter name="startDateTime" class="java.lang.Long" isForPrompting="false">
+        <defaultValueExpression><![CDATA[$P{startDate}.getTime()]]></defaultValueExpression>
+    </parameter>
+    <parameter name="endDateTime" class="java.lang.Long" isForPrompting="false">
+        <defaultValueExpression><![CDATA[$P{endDate}.getTime()]]></defaultValueExpression>
+    </parameter>
+    <queryString language="grafana">
+        <![CDATA[{
+			"dashboard": {
+			  "uid": "eWsVEL6zz"
+			},
+			"time": {
+			  "from": $P{startDateTime},
+			  "to": $P{endDateTime}
+			},
+			"render": {
+			  "width": 1149,
+			  "height": 1572,
+			  "theme": "light"
+			},
+			"variables": {
+			  "node": "1",
+			  "interface": "2"
+			}
+		}]]>
+    </queryString>
+    <field name="png" class="java.lang.Object" />
+    <field name="title" class="java.lang.String"/>
+    <field name="datasource" class="java.lang.String"/>
+    <field name="width" class="java.lang.Integer"/>
+    <field name="height" class="java.lang.Integer"/>
+    <title>
+        <band splitType="Stretch"/>
+    </title>
+    <pageHeader>
+        <band height="27" splitType="Stretch">
+            <staticText>
+                <reportElement x="530" y="4" width="180" height="18" uuid="2a2325ca-d32c-43ec-a930-970f17c2286c"/>
+                <textElement>
+                    <font size="12"/>
+                </textElement>
+                <text><![CDATA[Flow Report]]></text>
+            </staticText>
+        </band>
+    </pageHeader>
+    <detail>
+        <band height="1592" splitType="Stretch">
+            <property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+            <textField>
+                <reportElement x="1" y="0" width="1149" height="20" uuid="3340166d-e746-4839-9c74-0ba3defb70e4"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{title} + " (" + $F{datasource} + ")" + " ( " + $F{width} + "x" + $F{height} + ")"]]></textFieldExpression>
+            </textField>
+            <image>
+                <reportElement stretchType="RelativeToBandHeight" x="1" y="20" width="1149" height="1572" uuid="6d3caa20-5995-424f-893c-fcb1c220be6f">
+                    <property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+                </reportElement>
+                <imageExpression><![CDATA[new java.io.ByteArrayInputStream((byte[])$F{png})]]></imageExpression>
+            </image>
+        </band>
+    </detail>
+    <columnFooter>
+        <band splitType="Stretch"/>
+    </columnFooter>
+    <pageFooter>
+        <band height="25" splitType="Stretch">
+            <frame>
+                <reportElement mode="Opaque" x="-21" y="1" width="597" height="24" uuid="10dfd2c7-7881-4dbd-b1f2-b2b550d2f003"/>
+                <textField evaluationTime="Report">
+                    <reportElement style="Column header" x="533" y="0" width="40" height="20" forecolor="#736343" uuid="f7ae35fa-8f6c-4c3e-a111-a7b868a83134"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+                </textField>
+                <textField>
+                    <reportElement style="Column header" x="453" y="0" width="80" height="20" forecolor="#736343" uuid="871f4010-1065-40d8-b55d-aa238d80a59d"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+                </textField>
+                <textField pattern="EEEEE dd MMMMM yyyy">
+                    <reportElement style="Column header" x="22" y="1" width="197" height="20" forecolor="#736343" uuid="72447933-df4d-4da8-8c10-e8b5f08f41d0"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </pageFooter>
+</jasperReport>

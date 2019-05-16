@@ -17,6 +17,7 @@ require('angular-loading-bar/build/loading-bar.css');
 require('vendor/bootstrap-js');
 require('angular-bootstrap-checkbox');
 require('ui-bootstrap4'); // angular-ui-boostrap for bootstrap 4
+// TODO MVR maybe add more requires here to not have to depend on individual bits all the time
 
 console.log('init: angular-js'); // eslint-disable-line no-console
 

@@ -1,0 +1,62 @@
+<div id="ruleModal">
+  <div class="modal-header">
+    <h5 class="modal-title">{{endpoint.id === undefined ? "Add" : "Edit"}} Endpoint</h5> <span class="badge badge-primary" ng-if="endpoint.type">{{endpoint.type}}</span>
+  </div>
+  <div class="modal-body">
+    <form name="endpointForm" novalidate>
+      <div class="form-group">
+        <div ng-show="error.entity" class="form-text text-muted">{{error.entity}}</div>
+      </div>
+      <div class="form-group form-row">
+        <label class="col-form-label" for="endpoint.type">Endpoint Type</label>
+        <select id="endpoint.type" name="type" class="custom-select" ng-model="endpoint.type" required>
+          <option value="grafana">Grafana</option>
+          <option value="elasticsearch">ElasticSearch</option>
+        </select>
+        <div ng-show="endpointForm.type.$invalid" class="invalid-feedback">The type is required.</div>
+        <div ng-show="error.type" class="invalid-feedback">{{error.type}}</div>
+      </div>
+      <div class="form-group form-row">
+        <label class="col-form-label" for="endpoint.id">Endpoint ID</label>
+        <input class="form-control" type="text" id="endpoint.id" name="id" placeholder="Unique ID" ng-model="endpoint.id"
+               ng-class="{ 'is-invalid' : endpointForm.id.$invalid || error.id }" required/>
+        <div ng-show="endpointForm.id.$invalid" class="invalid-feedback">The id is required.</div>
+        <div ng-show="error.id" class="invalid-feedback">{{error.id}}</div>
+      </div>
+      <div class="form-group form-row">
+          <label class="col-form-label" for="endpoint.label">Endpoint Label</label>
+          <input class="form-control" type="text" id="endpoint.label" name="label" placeholder="Optional Label" ng-model="endpoint.label"
+                 ng-class="{ 'is-invalid' : endpointForm.label.$invalid || error.label}"/>
+          <div ng-show="error.label" class="invalid-feedback">{{error.label}}</div>
+      </div>
+      <div class="form-group form-row">
+        <label class="col-form-label" for="endpoint.description">Endpoint Description</label>
+        <input class="form-control" type="text" id="endpoint.description" name="description" placeholder="Optional Label" ng-model="endpoint.description"
+               ng-class="{ 'is-invalid' : endpointForm.description.$invalid || error.description}"/>
+        <div ng-show="error.description" class="invalid-feedback">{{error.description}}</div>
+      </div>
+      <div class="form-group form-row">
+        <label class="col-form-label" for="endpoint.apiKey">Endpoint API Key</label>
+        <input class="form-control" type="text" id="endpoint.apiKey" name="apiKey" placeholder="API-KEY" ng-model="endpoint.apiKey"
+               ng-class="{ 'is-invalid' : endpointForm.apiKey.$invalid || error.apiKey}" required/>
+        <div ng-show="error.apiKey" class="invalid-feedback">{{error.apiKey}}</div>
+      </div>
+      <div class="form-group form-row">
+        <label class="col-form-label" for="endpoint.url">Endpoint URL</label>
+        <input class="form-control" type="text" id="endpoint.url" name="url" placeholder="http://grafana:3000" ng-model="endpoint.url"
+               ng-class="{ 'is-invalid' : endpointForm.url.$invalid || error.url}" required/>
+        <div ng-show="error.url" class="invalid-feedback">{{error.url}}</div>
+      </div>
+    </form>
+    <div ng-if="verifyResult" class="alert alert-{{verifyResult.type}}">
+      <span>{{verifyResult.message}}</span>
+    </div>
+    <button type="button" class="btn btn-warning btn-sm" id="verify-endpoint" ng-click="verify()" ng-disabled="endpointForm.$invalid">Test Connection</button>
+  </div>
+  <div class="modal-footer">
+    <div>
+      <button type="button" class="btn btn-primary" id="save-endpoint" ng-click="save()" ng-disabled="endpointForm.$invalid">{{buttonName}}</button>
+      <button type="button" class="btn btn-secondary" id="cancel-endpoint" ng-click="cancel()">Cancel</button>
+    </div>
+  </div>
+</div>

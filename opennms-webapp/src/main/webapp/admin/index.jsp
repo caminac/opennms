@@ -133,6 +133,8 @@
         <ul class="list-unstyled mb-0">
             <li><a href="admin/sysconfig.jsp">System Configuration</a></li>
             <li><a href="admin/userGroupView/index.jsp">Configure Users, Groups and On-Call Roles</a></li>
+            <!-- TODO MVR naming?? -->
+            <li><a href="admin/endpoints/index.jsp">Endpoints Configuration</a></li>
         </ul>
       </div> <!-- card-body -->
     </div> <!-- panel -->
