@@ -10,9 +10,8 @@
     <table class="table table-sm table-striped" ng-if="endpoints.length > 0">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Type</th>
-                <th>Name</th>
+                <th>UID</th>
                 <th>Description</th>
                 <th>URL</th>
                 <th>API Key</th>
@@ -21,11 +20,10 @@
         </thead>
         <tbody>
             <tr ng-repeat="endpoint in endpoints">
-                <td>{{endpoint.id}}</td>
                 <td>
                     <span class="badge badge-primary">{{endpoint.type}}</span>
                 </td>
-                <td>{{endpoint.label}}</span></td>
+                <td>{{endpoint.uid}}</td>
                 <td>{{endpoint.description}}</td>
                 <td>{{endpoint.url}}</td>
                 <td>

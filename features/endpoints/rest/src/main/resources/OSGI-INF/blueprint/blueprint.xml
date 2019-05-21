@@ -8,10 +8,10 @@
                 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.3.0.xsd
 ">
 
-    <reference id="endpointRepository" interface="org.opennms.netmgt.endpoints.api.EndpointRepository" availability="mandatory" />
+    <reference id="endpointDefinitionRepository" interface="org.opennms.netmgt.endpoints.api.EndpointDefinitionRepository" availability="mandatory" />
 
     <bean id="endpointRestService" class="org.opennms.netmgt.endpoints.rest.internal.EndpointRestServiceImpl">
-        <argument ref="endpointRepository" />
+        <argument ref="endpointDefinitionRepository" />
     </bean>
     <service interface="org.opennms.netmgt.endpoints.rest.EndpointRestService" ref="endpointRestService" >
         <service-properties>

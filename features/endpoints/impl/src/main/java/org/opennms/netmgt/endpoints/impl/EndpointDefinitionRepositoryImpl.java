@@ -32,14 +32,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.opennms.netmgt.endpoints.api.EndpointDefinition;
-import org.opennms.netmgt.endpoints.api.EndpointRepository;
+import org.opennms.netmgt.endpoints.api.EndpointDefinitionRepository;
 import org.opennms.netmgt.endpoints.api.EndpointType;
 
-public class EndpointRepositoryImpl implements EndpointRepository {
+public class EndpointDefinitionRepositoryImpl implements EndpointDefinitionRepository {
 
     private final List<EndpointDefinition> endpoints = new ArrayList<>();
 
@@ -55,24 +54,25 @@ public class EndpointRepositoryImpl implements EndpointRepository {
     }
 
     @Override
-    public EndpointDefinition get(EndpointType endpointType, String endpointId) throws NoSuchElementException {
-        Objects.requireNonNull(endpointType);
-        Objects.requireNonNull(endpointId);
-        return endpoints.stream().filter(s -> endpointType == s.getType() && s.getId().equals(endpointId)).findAny().orElseThrow(() -> new NoSuchElementException("Could not find endpoint of type '" + endpointType + "' with id '" + endpointId + "'"));
-    }
-
-    @Override
-    public EndpointDefinition get(String endpointId) {
+    public EndpointDefinition get(long endpointId) throws NoSuchElementException {
         Objects.requireNonNull(endpointId);
         return endpoints.stream()
-                .filter(s -> s.getId().equals(endpointId))
+                .filter(e -> Objects.equals(e.getId(), endpointId))
                 .findAny().orElseThrow(() -> new NoSuchElementException("Could not find endpoint with id '" + endpointId + "'"));
     }
 
-    private EndpointDefinition find(String endpointId) {
+    @Override
+    public EndpointDefinition get(String endpointUid) throws NoSuchElementException {
+        Objects.requireNonNull(endpointUid);
+        return endpoints.stream()
+                .filter(e -> Objects.equals(endpointUid, e.getUid()))
+                .findAny().orElseThrow(() -> new NoSuchElementException("Could not find endpoint with uid '" + endpointUid + "'"));
+    }
+
+    private EndpointDefinition find(long endpointId) {
         Objects.requireNonNull(endpointId);
         return endpoints.stream()
-                .filter(s -> s.getId().equals(endpointId))
+                .filter(e -> Objects.equals(endpointId, e.getId()))
                 .findAny()
                 .orElse(null);
     }
@@ -82,23 +82,22 @@ public class EndpointRepositoryImpl implements EndpointRepository {
         Objects.requireNonNull(endpointDefinition);
 
         // TODO MVR add validation
-
-        if (endpointDefinition.getId() == null) {
-            endpointDefinition.setId(UUID.randomUUID().toString());
-        }
-        final EndpointDefinition persistedEndpoint = find(endpointDefinition.getId());
+        final EndpointDefinition persistedEndpoint = endpointDefinition.getId() != null ? find(endpointDefinition.getId()) : null;
         if (persistedEndpoint != null) {
             persistedEndpoint.merge(endpointDefinition);
+            return get(endpointDefinition.getId());
         } else {
-            endpoints.add(new EndpointDefinition(endpointDefinition));
+            final EndpointDefinition newDefinition = new EndpointDefinition(endpointDefinition);
+            newDefinition.setId(Long.valueOf(endpoints.size() + 1));
+            endpoints.add(newDefinition);
+            return get(newDefinition.getId());
         }
-        return get(endpointDefinition.getType(), endpointDefinition.getId());
     }
 
     @Override
-    public boolean delete(EndpointDefinition endpointDefinition) {
+    public boolean delete(EndpointDefinition endpointDefinition) throws NoSuchElementException {
         Objects.requireNonNull(endpointDefinition);
-        final EndpointDefinition persistedDefinition = get(endpointDefinition.getType(), endpointDefinition.getId());
+        final EndpointDefinition persistedDefinition = get(endpointDefinition.getId());
         if (persistedDefinition != null) {
             return endpoints.remove(persistedDefinition);
         }

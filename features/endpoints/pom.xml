@@ -12,7 +12,15 @@
   <name>OpenNMS :: Features :: Endpoints</name>
   <modules>
     <module>api</module>
+    <module>adapters</module>
     <module>impl</module>
     <module>rest</module>
   </modules>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>

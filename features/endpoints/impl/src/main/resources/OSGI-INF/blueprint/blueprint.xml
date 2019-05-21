@@ -8,7 +8,7 @@
                 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.3.0.xsd
 ">
 
-    <bean id="endpointRepository" class="org.opennms.netmgt.endpoints.impl.EndpointRepositoryImpl">
+    <bean id="endpointDefinitionRepository" class="org.opennms.netmgt.endpoints.impl.EndpointDefinitionRepositoryImpl">
     </bean>
-    <service interface="org.opennms.netmgt.endpoints.api.EndpointRepository" ref="endpointRepository" />
+    <service interface="org.opennms.netmgt.endpoints.api.EndpointDefinitionRepository" ref="endpointDefinitionRepository" />
 </blueprint>

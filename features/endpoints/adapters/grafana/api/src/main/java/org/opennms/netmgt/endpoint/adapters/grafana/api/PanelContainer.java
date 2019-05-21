@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.netmgt.jasper.grafana.model;
+package org.opennms.netmgt.endpoint.adapters.grafana.api;
 
 import java.util.List;
 

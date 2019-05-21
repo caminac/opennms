@@ -26,40 +26,11 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.netmgt.jasper.grafana.model;
+package org.opennms.netmgt.endpoint.adapters.grafana.api;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.opennms.netmgt.endpoints.api.EndpointDefinition;
 
-// TODO MVR add tags, isStarred, etc.
-public class Dashboard implements PanelContainer {
+public interface GrafanaClientFactory {
 
-    private String uid;
-    private String title;
-    private List<Panel> panels = new ArrayList<>();
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    @Override
-    public List<Panel> getPanels() {
-        return panels;
-    }
-
-    public void setPanels(List<Panel> panels) {
-        this.panels = panels;
-    }
+    GrafanaClient createClient(EndpointDefinition endpointDefintion);
 }

@@ -26,17 +26,23 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.netmgt.jasper.grafana.model;
+package org.opennms.netmgt.endpoint.adapters.grafana.rest;
 
-public class DashboardWithMeta {
 
-    private Dashboard dashboard;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-    public Dashboard getDashboard() {
-        return dashboard;
-    }
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+@Path("/endpoints/grafana")
+public interface GrafanaEndpointRestService {
 
-    public void setDashboard(Dashboard dashboard) {
-        this.dashboard = dashboard;
-    }
+    @Path("/{uid}/dashboards")
+    @GET
+    Response listDashboards(@PathParam("uid") final String uid);
 }

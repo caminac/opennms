@@ -8,8 +8,8 @@
                 <form class="form" role="form">
                     <div class="form-group">
                         <label>Grafana Endpoint</label>
-                        <select class="form-control custom-select">
-                            <option ng-repeat="endpoint in endpoints" value="{{endpoint.id}}">{{endpoint.label ? endpoint.label : endpoint.id}}</option>
+                        <select class="form-control custom-select" ng-model="selectedEndpoint">
+                            <option ng-repeat="endpoint in endpoints" value="{{endpoint.uid}}">{{endpoint.uid + (endpoint.description ? "" : endpoint.description)}}</option>
                         </select>
                         <!-- TODO MVR add baseHref -->
                         <a href="/opennms/admin/endpoints/index.jsp">Configure Grafana Endpoints</a>

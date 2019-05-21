@@ -30,18 +30,16 @@ package org.opennms.netmgt.endpoints.api;
 
 import java.util.Objects;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 public class EndpointDefinition {
 
+    @XmlJavaTypeAdapter(EndpointTypeAdapter.class)
     private EndpointType type;
-
-    private String id;
-
-    private String label;
-
+    private Long id;
+    private String uid;
     private String url;
-
     private String apiKey;
-
     private String description;
 
     public EndpointDefinition() {
@@ -61,21 +59,20 @@ public class EndpointDefinition {
         this.type = type;
     }
 
-
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getLabel() {
-        return label;
+    public String getUid() {
+        return uid;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getUrl() {
@@ -106,7 +103,7 @@ public class EndpointDefinition {
         Objects.requireNonNull(definition);
         setApiKey(definition.getApiKey());
         setId(definition.getId());
-        setLabel(definition.getLabel());
+        setUid(definition.getUid());
         setUrl(definition.getUrl());
         setType(definition.getType());
         setDescription(definition.getDescription());

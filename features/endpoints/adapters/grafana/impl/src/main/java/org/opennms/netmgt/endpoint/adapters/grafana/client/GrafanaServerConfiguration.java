@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.netmgt.jasper.grafana.client;
+package org.opennms.netmgt.endpoint.adapters.grafana.client;
 
 import java.io.File;
 import java.io.FileInputStream;

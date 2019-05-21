@@ -17,17 +17,11 @@
         <div ng-show="error.type" class="invalid-feedback">{{error.type}}</div>
       </div>
       <div class="form-group form-row">
-        <label class="col-form-label" for="endpoint.id">Endpoint ID</label>
-        <input class="form-control" type="text" id="endpoint.id" name="id" placeholder="Unique ID" ng-model="endpoint.id"
-               ng-class="{ 'is-invalid' : endpointForm.id.$invalid || error.id }" required/>
-        <div ng-show="endpointForm.id.$invalid" class="invalid-feedback">The id is required.</div>
-        <div ng-show="error.id" class="invalid-feedback">{{error.id}}</div>
-      </div>
-      <div class="form-group form-row">
-          <label class="col-form-label" for="endpoint.label">Endpoint Label</label>
-          <input class="form-control" type="text" id="endpoint.label" name="label" placeholder="Optional Label" ng-model="endpoint.label"
-                 ng-class="{ 'is-invalid' : endpointForm.label.$invalid || error.label}"/>
-          <div ng-show="error.label" class="invalid-feedback">{{error.label}}</div>
+        <label class="col-form-label" for="endpoint.uid">Endpoint ID</label>
+        <input class="form-control" type="text" id="endpoint.uid" name="uid" placeholder="Unique ID" ng-model="endpoint.uid"
+               ng-class="{ 'is-invalid' : endpointForm.uid.$invalid || error.uid }" required/>
+        <div ng-show="endpointForm.uid.$invalid" class="invalid-feedback">The Unique ID is required.</div>
+        <div ng-show="error.uid" class="invalid-feedback">{{error.uid}}</div>
       </div>
       <div class="form-group form-row">
         <label class="col-form-label" for="endpoint.description">Endpoint Description</label>

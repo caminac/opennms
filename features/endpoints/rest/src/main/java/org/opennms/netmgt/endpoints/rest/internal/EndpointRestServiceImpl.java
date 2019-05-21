@@ -28,7 +28,6 @@
 
 package org.opennms.netmgt.endpoints.rest.internal;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,37 +37,24 @@ import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.opennms.netmgt.endpoints.api.EndpointType;
-import org.opennms.netmgt.jasper.grafana.client.GrafanaClient;
-import org.opennms.netmgt.jasper.grafana.client.GrafanaServerConfiguration;
-import org.opennms.netmgt.jasper.grafana.model.Dashboard;
 import org.opennms.netmgt.endpoints.api.EndpointDefinition;
-import org.opennms.netmgt.endpoints.api.EndpointRepository;
+import org.opennms.netmgt.endpoints.api.EndpointDefinitionRepository;
 import org.opennms.netmgt.endpoints.rest.EndpointRestService;
+
+import com.google.common.base.Strings;
 
 // TODO MVR add error entity
 public class EndpointRestServiceImpl implements EndpointRestService {
 
-    private final EndpointRepository endpointRepository;
+    private final EndpointDefinitionRepository endpointDefinitionRepository;
 
-    public EndpointRestServiceImpl(EndpointRepository endpointRepository) {
-        this.endpointRepository = Objects.requireNonNull(endpointRepository);
-    }
-
-    @Override
-    public Response listEndpoints() {
-        final List<EndpointDefinition> endpoints = endpointRepository.findAll();
-        if (endpoints.isEmpty()) {
-            return Response.noContent().build();
-        }
-        final JSONArray resultArray = new JSONArray();
-        endpoints.forEach(s -> resultArray.put(new JSONObject(s)));
-        return Response.ok().entity(resultArray.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+    public EndpointRestServiceImpl(EndpointDefinitionRepository endpointDefinitionRepository) {
+        this.endpointDefinitionRepository = Objects.requireNonNull(endpointDefinitionRepository);
     }
 
     @Override
     public Response listEndpoints(String type) {
-        final EndpointType endpointType = EndpointType.valueOf(type); // TODO MVR implement case insensitivity
-        final List<EndpointDefinition> endpoints = endpointRepository.findByType(endpointType);
+        final List<EndpointDefinition> endpoints = getEndpoints(type);
         if (endpoints.isEmpty()) {
             return Response.noContent().build();
         }
@@ -78,33 +64,43 @@ public class EndpointRestServiceImpl implements EndpointRestService {
     }
 
     @Override
-    public Response getEndpoint(String type, String endpointId) throws IOException {
-        final EndpointType endpointType = EndpointType.valueOf(type); // TODO MVR implement case insensitivity
-        final EndpointDefinition endpointDefinition = endpointRepository.get(endpointType, endpointId);
-        final GrafanaServerConfiguration grafanaServerConfiguration = new GrafanaServerConfiguration(endpointDefinition.getUrl(), endpointDefinition.getApiKey(), 5000, 5000);
-        final GrafanaClient grafanaClient = new GrafanaClient(grafanaServerConfiguration);
-        final List<Dashboard> dashboards = grafanaClient.getDashboards();
-        return Response.ok().entity(new JSONArray(dashboards).toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+    public Response getEndpoint(String endpointId) {
+        final EndpointDefinition endpointDefinition = endpointDefinitionRepository.get(endpointId);
+        return Response.ok().entity(new JSONArray(endpointDefinition).toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     @Override
     public Response updateEndpoint(final EndpointDefinition newEndpointDefinition) {
-        endpointRepository.saveOrUpdate(newEndpointDefinition);
+        endpointDefinitionRepository.saveOrUpdate(newEndpointDefinition);
         return Response.accepted().build();
     }
 
     @Override
-    public Response deleteEndpoint(final String endpointId) {
-        final EndpointDefinition endpointDefinition = endpointRepository.get(endpointId);
+    public Response createEndpoint(EndpointDefinition newEndpointDefinition) {
+        endpointDefinitionRepository.saveOrUpdate(newEndpointDefinition);
+        return Response.accepted().build();
+    }
+
+    @Override
+    public Response deleteEndpoint(final Long endpointId) {
+        final EndpointDefinition endpointDefinition = endpointDefinitionRepository.get(endpointId);
         if (endpointDefinition == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        boolean success = endpointRepository.delete(endpointDefinition);
+        boolean success = endpointDefinitionRepository.delete(endpointDefinition);
         if (success) {
             return Response.status(Response.Status.ACCEPTED).build();
         }
         // TODO MVR add error entity
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    private List<EndpointDefinition> getEndpoints(String type) {
+        if (Strings.isNullOrEmpty(type)) {
+            return endpointDefinitionRepository.findAll();
+        }
+        final EndpointType endpointType = EndpointType.parse(type);
+        return endpointDefinitionRepository.findByType(endpointType);
     }
 
 }

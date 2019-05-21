@@ -28,7 +28,18 @@
 
 package org.opennms.netmgt.endpoints.api;
 
-// TODO MVR add more types and also make it case insensitive, etc.
+import java.util.Arrays;
+
 public enum EndpointType {
-    grafana
+    Grafana;
+
+    public static EndpointType parse(String type) {
+        for (EndpointType eachType : values()) {
+            if (eachType.name().equalsIgnoreCase(type)) {
+                return eachType;
+            }
+        }
+        throw new IllegalArgumentException("Cannot parse input parameter '" + type
+                + "' to a valid EndpointType. Supported values are " + Arrays.toString(values()));
+    }
 }

@@ -26,26 +26,24 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.netmgt.jasper.grafana.model;
+package org.opennms.netmgt.endpoint.adapters.grafana.api;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Panel implements PanelContainer {
+// TODO MVR add tags, isStarred, etc.
+public class Dashboard implements PanelContainer {
 
-    private Integer id;
+    private String uid;
     private String title;
-    private String type;
-    private String datasource;
-    private String description;
     private List<Panel> panels = new ArrayList<>();
 
-    public Integer getId() {
-        return id;
+    public String getUid() {
+        return uid;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getTitle() {
@@ -56,30 +54,6 @@ public class Panel implements PanelContainer {
         this.title = title;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getDatasource() {
-        return datasource;
-    }
-
-    public void setDatasource(String datasource) {
-        this.datasource = datasource;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     @Override
     public List<Panel> getPanels() {
         return panels;
@@ -88,17 +62,4 @@ public class Panel implements PanelContainer {
     public void setPanels(List<Panel> panels) {
         this.panels = panels;
     }
-
-    @Override
-    public String toString() {
-        return "Panel{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", type='" + type + '\'' +
-                ", datasource='" + datasource + '\'' +
-                ", description='" + description + '\'' +
-                ", panels=" + panels +
-                '}';
-    }
-
 }

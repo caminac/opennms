@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.netmgt.jasper.grafana.client;
+package org.opennms.netmgt.endpoint.adapters.grafana.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -43,14 +43,14 @@ import java.util.stream.Collectors;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.opennms.netmgt.jasper.grafana.model.Dashboard;
-import org.opennms.netmgt.jasper.grafana.model.Panel;
-import org.opennms.netmgt.jasper.grafana.model.PanelContainer;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.Dashboard;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.Panel;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.PanelContainer;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
-public class GrafanaClientIT {
+public class GrafanaClientImplIT {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort());
@@ -63,7 +63,7 @@ public class GrafanaClientIT {
                         .withBodyFile("dashboard.json")));
 
         GrafanaServerConfiguration config = new GrafanaServerConfiguration(wireMockRule.baseUrl(), "xxxx", 5, 5);
-        GrafanaClient client = new GrafanaClient(config);
+        GrafanaClientImpl client = new GrafanaClientImpl(config);
         Dashboard dashboard = client.getDashboardByUid("eWsVEL6zz");
 
         assertThat(panelTitles(dashboard), contains("Traffic (Flows)", "Traffic by Application",

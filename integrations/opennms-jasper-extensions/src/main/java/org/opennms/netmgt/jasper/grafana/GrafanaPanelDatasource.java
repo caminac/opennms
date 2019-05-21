@@ -34,9 +34,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.opennms.netmgt.jasper.grafana.client.GrafanaClient;
-import org.opennms.netmgt.jasper.grafana.model.Dashboard;
-import org.opennms.netmgt.jasper.grafana.model.Panel;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.Dashboard;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClient;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.Panel;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRField;

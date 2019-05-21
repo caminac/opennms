@@ -28,15 +28,15 @@
 
 package org.opennms.netmgt.endpoints.rest;
 
-import java.io.IOException;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -46,25 +46,24 @@ import org.opennms.netmgt.endpoints.api.EndpointDefinition;
 @Consumes(MediaType.APPLICATION_JSON)
 @Path("/endpoints")
 // TODO MVR paths should be reworked
+// TODO MVR not possible to query via uid :-/
 public interface EndpointRestService {
 
     @GET
-    Response listEndpoints();
+    Response listEndpoints(@QueryParam("type") final String type);
 
     @GET
-    @Path("/{type}")
-    Response listEndpoints(@PathParam("type") final String type);
+    @Path("/{id}")
+    Response getEndpoint(@PathParam("id") final String endpointId);
 
-    @GET
-    @Path("/{type}/{id}")
-    // TODO MVR endpointId should be endpointUid
-    Response getEndpoint(@PathParam("type") final String type, @PathParam("id") final String endpointId) throws IOException;
+    @PUT
+    @Path("/{id}")
+    Response updateEndpoint(final EndpointDefinition newEndpointDefinition);
 
     @POST
-    Response updateEndpoint(final EndpointDefinition newEndpointDefinition);
+    Response createEndpoint(final EndpointDefinition newEndpointDefinition);
 
     @DELETE
     @Path("/{id}")
-    // TODO MVR endpointId should be endpointUid
-    Response deleteEndpoint(@PathParam("id") final String endpointId);
+    Response deleteEndpoint(@PathParam("id") final Long endpointId);
 }

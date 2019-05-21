@@ -31,9 +31,10 @@ package org.opennms.netmgt.jasper.grafana;
 import java.io.IOException;
 import java.util.Map;
 
-import org.opennms.netmgt.jasper.grafana.client.GrafanaClient;
-import org.opennms.netmgt.jasper.grafana.client.GrafanaServerConfiguration;
-import org.opennms.netmgt.jasper.grafana.model.Dashboard;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.Dashboard;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClient;
+import org.opennms.netmgt.endpoint.adapters.grafana.client.GrafanaClientImpl;
+import org.opennms.netmgt.endpoint.adapters.grafana.client.GrafanaServerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,14 +67,13 @@ public class GrafanaQueryExecutor extends JRAbstractQueryExecuter {
         LOG.debug("Parsed query: {}", grafanaQuery);
 
         final GrafanaServerConfiguration config = GrafanaServerConfiguration.fromEnv();
-        final GrafanaClient client = new GrafanaClient(config);
-        final Dashboard dashboard;
+        final GrafanaClient client = new GrafanaClientImpl(config);
         try {
-            dashboard = client.getDashboardByUid(grafanaQuery.getDashboardUid());
+            final Dashboard dashboard = client.getDashboardByUid(grafanaQuery.getDashboardUid());
+            return new GrafanaPanelDatasource(client, dashboard, grafanaQuery);
         } catch (IOException e) {
             throw new JRException(e);
         }
-        return new GrafanaPanelDatasource(client, dashboard, grafanaQuery);
     }
 
     @Override

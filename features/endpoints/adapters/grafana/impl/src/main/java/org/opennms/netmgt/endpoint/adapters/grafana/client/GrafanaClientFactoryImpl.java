@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of OpenNMS(R).
  *
- * Copyright (C) 2019-2019 The OpenNMS Group, Inc.
+ * Copyright (C) 2019 The OpenNMS Group, Inc.
  * OpenNMS(R) is Copyright (C) 1999-2019 The OpenNMS Group, Inc.
  *
  * OpenNMS(R) is a registered trademark of The OpenNMS Group, Inc.
@@ -26,22 +26,19 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.netmgt.endpoints.api;
+package org.opennms.netmgt.endpoint.adapters.grafana.client;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClient;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClientFactory;
+import org.opennms.netmgt.endpoints.api.EndpointDefinition;
 
-public interface EndpointRepository {
+public class GrafanaClientFactoryImpl implements GrafanaClientFactory {
 
-    List<EndpointDefinition> findAll();
-
-    List<EndpointDefinition> findByType(EndpointType endpointType);
-
-    EndpointDefinition get(EndpointType type, String endpointId) throws NoSuchElementException;
-
-    EndpointDefinition saveOrUpdate(EndpointDefinition endpointDefinition);
-
-    boolean delete(EndpointDefinition endpointDefinition);
-
-    EndpointDefinition get(String endpointId);
+    @Override
+    public GrafanaClient createClient(EndpointDefinition endpointDefintion) {
+        final GrafanaServerConfiguration serverConfiguration = new GrafanaServerConfiguration(endpointDefintion.getUrl(),
+                endpointDefintion.getApiKey(), 5 /* TODO MVR make configurable */, 5  /* TODO MVR make configurable */);
+        final GrafanaClient client = new GrafanaClientImpl(serverConfiguration);
+        return client;
+    }
 }

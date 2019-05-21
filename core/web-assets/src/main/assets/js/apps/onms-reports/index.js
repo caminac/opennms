@@ -43,10 +43,16 @@ const onlineTemplate  = require('./online-report.html');
             );
         })
         .factory('GrafanaService', function($resource) {
-            return $resource('rest/endpoints/grafana/:id', {},
+            return $resource('rest/endpoints/:id', {id: '@id'},
+                {
+                    'get':          { method: 'GET' },
+                    'list':         { method: 'GET', isArray:true, params: {type: 'grafana'} },
+                });
+        })
+        .factory('DashboardService', function($resource) {
+            return $resource('rest/endpoints/grafana/:uid/dashboards', {},
                 {
                     'list':         { method: 'GET', isArray:true },
-                    'dashboards':   { method: 'GET', isArray:true},
                 });
         })
         .controller('ReportsController', ['$scope', '$http', 'ReportsService', function($scope, $http, ReportsService) {
@@ -67,7 +73,7 @@ const onlineTemplate  = require('./online-report.html');
 
             $scope.refresh();
         }])
-        .controller('ReportsOnlineController', ['$scope', '$http', '$window', '$stateParams', 'ReportsService', 'GrafanaService', function($scope, $http, $window, $stateParams, ReportsService, GrafanaService) {
+        .controller('ReportsOnlineController', ['$scope', '$http', '$window', '$stateParams', 'ReportsService', 'GrafanaService', 'DashboardService', function($scope, $http, $window, $stateParams, ReportsService, GrafanaService, DashboardService) {
             $scope.loadDetails = function() {
                 $scope.loading = true;
                 $scope.loading = false;
@@ -105,12 +111,19 @@ const onlineTemplate  = require('./online-report.html');
                     console.log("ERROR", response);
                 });
 
-                GrafanaService.dashboards({id: 'GRAFANA_1'}, function(response) {
-                    console.log("SUCCESS", response);
-                    $scope.dashboards = response;
-                }, function(response) {
-                    console.log("ERROR", response);
-                })
+                $scope.$watch("selectedEndpoint", function(newValue, oldValue) {
+                    console.log("Endpoint changed", newValue, oldValue);
+                    if (newValue) {
+                        DashboardService.list({uid: 'GRAFANA_1'}, function(response) {
+                            console.log("SUCCESS", response);
+                            $scope.dashboards = response;
+                        }, function(response) {
+                            console.log("ERROR", response);
+                        })
+                    }
+                });
+
+
             };
 
             // TODO MVR use ReportsService for this, but somehow only $http works :-/

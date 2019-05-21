@@ -1005,7 +1005,6 @@
         <bundle>mvn:org.opennms.features.telemetry.protocols.sflow/org.opennms.features.telemetry.protocols.sflow.adapter/${project.version}</bundle>
     </feature>
     <!-- TODO MVR add to system directory -->
-    <!-- TODO MVR autostart -->
     <feature name="opennms-endpoints" version="${project.version}" description="OpenNMS :: Features :: Endpoints">
         <feature>guava</feature>
         <bundle>mvn:org.opennms/opennms-web-api/${project.version}</bundle>
@@ -1013,8 +1012,13 @@
         <bundle>mvn:org.opennms.features.endpoints/org.opennms.features.endpoints.rest/${project.version}</bundle>
         <bundle>mvn:org.opennms.features.endpoints/org.opennms.features.endpoints.impl/${project.version}</bundle>
     </feature>
+    <feature name="opennms-endpoints-grafana" version="${project.version}" description="OpenNMS :: Features :: Endpoints :: Grafana">
+        <feature>opennms-endpoints</feature>
+        <bundle>mvn:org.opennms.features.endpoints.adapters.grafana/org.opennms.features.endpoints.adapters.grafana.api/${project.version}</bundle>
+        <bundle>mvn:org.opennms.features.endpoints.adapters.grafana/org.opennms.features.endpoints.adapters.grafana.impl/${project.version}</bundle>
+        <bundle>mvn:org.opennms.features.endpoints.adapters.grafana/org.opennms.features.endpoints.adapters.grafana.rest/${project.version}</bundle>
+    </feature>
     <!-- TODO MVR add to system directory -->
-    <!-- TODO MVR autostart -->
     <feature name="opennms-reporting" version="${project.version}" description="OpenNMS :: Features :: Reporting">
         <!-- All other dependencies are wired in through custom.properties -->
         <bundle>mvn:org.opennms.features.reporting/org.opennms.features.reporting.rest/${project.version}</bundle>

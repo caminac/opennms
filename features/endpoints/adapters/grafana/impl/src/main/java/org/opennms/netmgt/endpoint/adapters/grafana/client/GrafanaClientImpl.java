@@ -26,12 +26,13 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.netmgt.jasper.grafana.client;
+package org.opennms.netmgt.endpoint.adapters.grafana.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,11 +45,11 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.opennms.netmgt.jasper.grafana.model.Dashboard;
-import org.opennms.netmgt.jasper.grafana.model.DashboardWithMeta;
-import org.opennms.netmgt.jasper.grafana.model.Panel;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClient;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.Dashboard;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.DashboardWithMeta;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.Panel;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
 import okhttp3.HttpUrl;
@@ -56,14 +57,14 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class GrafanaClient {
+public class GrafanaClientImpl implements GrafanaClient {
     private final GrafanaServerConfiguration config;
 
     private final Gson gson = new Gson();
     private final OkHttpClient client;
     private final HttpUrl baseUrl;
 
-    public GrafanaClient(GrafanaServerConfiguration grafanaServerConfiguration) {
+    public GrafanaClientImpl(GrafanaServerConfiguration grafanaServerConfiguration) {
         this.config = Objects.requireNonNull(grafanaServerConfiguration);
         baseUrl = HttpUrl.parse(grafanaServerConfiguration.getUrl());
 
@@ -74,6 +75,7 @@ public class GrafanaClient {
         client = builder.build();
     }
 
+    @Override
     public List<Dashboard> getDashboards() throws IOException {
         final HttpUrl url = baseUrl.newBuilder()
                 .addPathSegment("api")
@@ -91,10 +93,11 @@ public class GrafanaClient {
             }
             final String json = response.body().string();
             final Dashboard[] dashboards = gson.fromJson(json, Dashboard[].class);
-            return Lists.newArrayList(dashboards);
+            return Arrays.asList(dashboards);
         }
     }
 
+    @Override
     public Dashboard getDashboardByUid(String uid) throws IOException {
         final HttpUrl url = baseUrl.newBuilder()
                 .addPathSegment("api")
@@ -118,6 +121,7 @@ public class GrafanaClient {
         }
     }
 
+    @Override
     public byte[] renderPngForPanel(Dashboard dashboard, Panel panel, int width, int height, long from, long to, Map<String, String> variables) throws IOException {
         final HttpUrl.Builder builder = baseUrl.newBuilder()
                 .addPathSegment("render")
