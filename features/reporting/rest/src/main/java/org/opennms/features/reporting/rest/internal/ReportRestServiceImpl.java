@@ -29,6 +29,8 @@
 package org.opennms.features.reporting.rest.internal;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -62,6 +64,8 @@ import org.opennms.web.svclayer.DatabaseReportListService;
 import org.opennms.web.svclayer.dao.CategoryConfigDao;
 import org.opennms.web.svclayer.model.DatabaseReportDescription;
 import org.opennms.web.svclayer.model.ReportRepositoryDescription;
+
+import com.google.common.io.ByteStreams;
 
 public class ReportRestServiceImpl implements ReportRestService {
 

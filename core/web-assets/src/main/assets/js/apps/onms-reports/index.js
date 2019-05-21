@@ -73,7 +73,7 @@ const onlineTemplate  = require('./online-report.html');
 
             $scope.refresh();
         }])
-        .controller('ReportsOnlineController', ['$scope', '$http', '$window', '$stateParams', 'ReportsService', 'GrafanaService', 'DashboardService', function($scope, $http, $window, $stateParams, ReportsService, GrafanaService, DashboardService) {
+        .controller('ReportsOnlineController', ['$scope', '$http', '$window', '$sce', '$stateParams', 'ReportsService', 'GrafanaService', 'DashboardService', function($scope, $http, $window, $sce, $stateParams, ReportsService, GrafanaService, DashboardService) {
             $scope.loadDetails = function() {
                 $scope.loading = true;
                 $scope.loading = false;
@@ -126,38 +126,38 @@ const onlineTemplate  = require('./online-report.html');
 
             };
 
-            // TODO MVR use ReportsService for this, but somehow only $http works :-/
-            $scope.runReport = function(){
+            $scope.preview = function() {
                 $http({
                     method: 'POST',
                     url: 'rest/reports/' + $stateParams.id,
                     data:  {id:$stateParams.id, parameters: $scope.parameters, format: $scope.format},
                     responseType:  'arraybuffer'
                 }).then(function (response) {
-                    console.log("SUCCESS", response);
-                    var data = response.data;
-                    var fileBlob = new Blob([data], {type: 'application/pdf'});
-                    var fileURL = URL.createObjectURL(fileBlob);
-                    var contentDisposition = response.headers("Content-Disposition");
-                    // var filename = (contentDisposition.split(';')[1].trim().split('=')[1]).replace(/"/g, '');
-                    var filename = $stateParams.id + '.pdf';
+                        console.log("SUCCESS", response);
+                        var data = response.data;
+                        var fileBlob = new Blob([data], {type: 'application/pdf'});
+                        var fileURL = URL.createObjectURL(fileBlob);
+                        $scope.content = $sce.trustAsResourceUrl(fileURL);
 
-                    var a = document.createElement('a');
-                    document.body.appendChild(a);
-                    a.style = 'display: none';
-                    a.href = fileURL;
-                    a.download = filename;
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                },
-                function(error) {
-                    console.log("ERROR", error);
-                });
+                        // var contentDisposition = response.headers("Content-Disposition");
+                        // // var filename = (contentDisposition.split(';')[1].trim().split('=')[1]).replace(/"/g, '');
+                        // var filename = $stateParams.id + '.pdf';
+                        //
+                        // var a = document.createElement('a');
+                        // document.body.appendChild(a);
+                        // a.style = 'display: none';
+                        // a.href = fileURL;
+                        // a.download = filename;
+                        // a.click();
+                        // window.URL.revokeObjectURL(url);
+                        // document.body.removeChild(a);
+                    },
+                    function(error) {
+                        console.log("ERROR", error);
+                    });
             };
 
             $scope.loadDetails();
-
         }])
     ;
 }());

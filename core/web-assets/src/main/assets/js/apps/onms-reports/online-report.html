@@ -5,74 +5,81 @@
                 <span>Run Online Report</span>
             </div>
             <div class="card-body">
-                <form class="form" role="form">
-                    <div class="form-group">
-                        <label>Grafana Endpoint</label>
-                        <select class="form-control custom-select" ng-model="selectedEndpoint">
-                            <option ng-repeat="endpoint in endpoints" value="{{endpoint.uid}}">{{endpoint.uid + (endpoint.description ? "" : endpoint.description)}}</option>
-                        </select>
-                        <!-- TODO MVR add baseHref -->
-                        <a href="/opennms/admin/endpoints/index.jsp">Configure Grafana Endpoints</a>
-                    </div>
-                    <div class="form-group">
-                        <label>Grafana Dashboard</label>
-                        <select class="form-control custom-select">
-                            <option ng-repeat="dashboard in dashboards" value="{{dashboard.uid}}">{{dashboard.title}}</option>
-                        </select>
-                    </div>
-                    <hr />
+                <div class="row">
+                    <div class="col-4">
+                        <form class="form" role="form">
+                            <div class="form-group">
+                                <label>Grafana Endpoint</label>
+                                <select class="form-control custom-select" ng-model="selectedEndpoint">
+                                    <option ng-repeat="endpoint in endpoints" value="{{endpoint.uid}}">{{endpoint.uid + (endpoint.description ? "" : endpoint.description)}}</option>
+                                </select>
+                                <!-- TODO MVR add baseHref -->
+                                <a href="/opennms/admin/endpoints/index.jsp">Configure Grafana Endpoints</a>
+                            </div>
+                            <div class="form-group">
+                                <label>Grafana Dashboard</label>
+                                <select class="form-control custom-select">
+                                    <option ng-repeat="dashboard in dashboards" value="{{dashboard.uid}}">{{dashboard.title}}</option>
+                                </select>
+                            </div>
+                            <hr />
 
-                    <div ng-if="parameter.type === 'string'" class="form-group" ng-repeat="parameter in parameters">
-                        <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
+                            <div ng-if="parameter.type === 'string'" class="form-group" ng-repeat="parameter in parameters">
+                                <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
 
-                        <!--String -->
-                        <select id="{{parameter.name}}" ng-if="parameter.inputType === 'reportCategorySelector'" class="form-control custom-select" >
-                            <option ng-repeat="option in surveillanceCategories">{{option}}</option>
-                        </select>
-                        <select id="{{parameter.name}}" ng-if="parameter.inputType === 'onmsCategorySelector'" class="form-control custom-select" >
-                            <option ng-repeat="option in categories">{{option}}</option>
-                        </select>
-                        <input id="{{parameter.name}}"
-                               ng-if="parameter.inputType !== 'reportCategorySelector' && parameter.inputType !== 'onmsCategorySelector'"
-                               class="form-control" type="text" value="{{parameter.value}}"/>
+                                <!--String -->
+                                <select id="{{parameter.name}}" ng-if="parameter.inputType === 'reportCategorySelector'" class="form-control custom-select" >
+                                    <option ng-repeat="option in surveillanceCategories">{{option}}</option>
+                                </select>
+                                <select id="{{parameter.name}}" ng-if="parameter.inputType === 'onmsCategorySelector'" class="form-control custom-select" >
+                                    <option ng-repeat="option in categories">{{option}}</option>
+                                </select>
+                                <input id="{{parameter.name}}"
+                                       ng-if="parameter.inputType !== 'reportCategorySelector' && parameter.inputType !== 'onmsCategorySelector'"
+                                       class="form-control" type="text" value="{{parameter.value}}"/>
+                            </div>
+                            <!-- INT -->
+                            <div  ng-if="parameter.type === 'integer'" class="form-group" ng-repeat="parameter in parameters">
+                                <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
+                                <input id="{{parameter.name}}" class="form-control" type="text" value="{{parameter.value}}"/>
+                            </div>
+                            <!-- FLOAT -->
+                            <div ng-if="parameter.type === 'float'" class="form-group" ng-repeat="parameter in parameters">
+                                <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
+                                <input id="{{parameter.name}}" class="form-control" type="text" value="{{parameter.value}}"/>
+                            </div>
+                            <!-- DOUBLE -->
+                            <div ng-if="parameter.type === 'double'" class="form-group" ng-repeat="parameter in parameters">
+                                <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
+                                <input id="{{parameter.name}}" class="form-control" type="text" value="{{parameter.value}}"/>
+                            </div>
+                            <!-- DATE -->
+                            <div ng-if="parameter.type === 'date'" class="form-group" ng-repeat="parameter in parameters">
+                                <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
+                                <div class="input-group">
+                                    <input id="{{parameter.name}}" class="form-control" type="text" value="{{parameter.date}}" />
+                                    <input class="form-control" type="number" min="0" max="23" value="{{parameter.hours}}" />
+                                    <input class="form-control" type="number" min="0" max="59" value="{{parameter.minutes}}" />
+                                </div>
+                            </div>
+                            <!-- FORMAT -->
+                            <div class="form-group">
+                                <span class="">Report Format</span>
+                                <select class="form-control custom-select">
+                                    <option ng-repeat="format in formats">{{format.name}}</option>
+                                </select>
+                            </div>
+                            <div class="alert alert-danger" ng-if="errorMessage">
+                                <span>{{errorMessage}}</span>
+                            </div>
+                            <input type="button" class="btn btn-primary" name="run" value="Preview" id="preview" ng-click="preview()"/>
+                            <input type="reset" class="btn btn-danger" ui-sref="home" name="cancel" value="cancel" id="cancel">
+                        </form>
                     </div>
-                    <!-- INT -->
-                    <div  ng-if="parameter.type === 'integer'" class="form-group" ng-repeat="parameter in parameters">
-                        <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
-                        <input id="{{parameter.name}}" class="form-control" type="text" value="{{parameter.value}}"/>
+                    <div class="col-8">
+                        <embed class="w-100 h-100" ng-src="{{content}}"></embed>
                     </div>
-                    <!-- FLOAT -->
-                    <div ng-if="parameter.type === 'float'" class="form-group" ng-repeat="parameter in parameters">
-                        <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
-                        <input id="{{parameter.name}}" class="form-control" type="text" value="{{parameter.value}}"/>
-                    </div>
-                    <!-- DOUBLE -->
-                    <div ng-if="parameter.type === 'double'" class="form-group" ng-repeat="parameter in parameters">
-                        <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
-                        <input id="{{parameter.name}}" class="form-control" type="text" value="{{parameter.value}}"/>
-                    </div>
-                    <!-- DATE -->
-                    <div ng-if="parameter.type === 'date'" class="form-group" ng-repeat="parameter in parameters">
-                        <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
-                        <div class="input-group">
-                            <input id="{{parameter.name}}" class="form-control" type="text" value="{{parameter.date}}" />
-                            <input class="form-control" type="number" min="0" max="23" value="{{parameter.hours}}" />
-                            <input class="form-control" type="number" min="0" max="59" value="{{parameter.minutes}}" />
-                        </div>
-                    </div>
-                    <!-- FORMAT -->
-                    <div class="form-group">
-                        <span class="">Report Format</span>
-                        <select class="form-control custom-select">
-                            <option ng-repeat="format in formats">{{format.name}}</option>
-                        </select>
-                    </div>
-                    <div class="alert alert-danger" ng-if="errorMessage">
-                        <span>{{errorMessage}}</span>
-                    </div>
-                    <input type="button" class="btn btn-secondary" name="run" value="run report" id="run" ng-click="runReport()"/>
-                    <input type="reset" class="btn btn-secondary" name="cancel" value="cancel" id="cancel" ng-disabled="errorMessage">
-                </form>
+                </div>
             </div>
         </div>
 
