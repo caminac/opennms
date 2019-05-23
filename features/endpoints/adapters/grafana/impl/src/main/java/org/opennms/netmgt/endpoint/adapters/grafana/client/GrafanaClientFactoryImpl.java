@@ -36,8 +36,12 @@ public class GrafanaClientFactoryImpl implements GrafanaClientFactory {
 
     @Override
     public GrafanaClient createClient(EndpointDefinition endpointDefintion) {
-        final GrafanaServerConfiguration serverConfiguration = new GrafanaServerConfiguration(endpointDefintion.getUrl(),
-                endpointDefintion.getApiKey(), 5 /* TODO MVR make configurable */, 5  /* TODO MVR make configurable */);
+        final GrafanaServerConfiguration serverConfiguration = GrafanaServerConfiguration.builder()
+                .withApiKey(endpointDefintion.getApiKey())
+                .withUrl(endpointDefintion.getUrl())
+                .withStrictSsl(false)
+                .build();
+        // TODO MVR: Make *all* properties on the builder configurable
         final GrafanaClient client = new GrafanaClientImpl(serverConfiguration);
         return client;
     }

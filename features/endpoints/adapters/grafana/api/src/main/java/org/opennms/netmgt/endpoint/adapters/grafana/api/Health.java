@@ -28,37 +28,59 @@
 
 package org.opennms.netmgt.endpoint.adapters.grafana.api;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
-public class Dashboard implements PanelContainer {
+public class Health {
 
-    private String uid;
-    private String title;
-    private List<Panel> panels = new ArrayList<>();
+    private String commit;
+    private String database;
+    private String version;
 
-    public String getUid() {
-        return uid;
+    public String getCommit() {
+        return commit;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setCommit(String commit) {
+        this.commit = commit;
     }
 
-    public String getTitle() {
-        return title;
+    public String getDatabase() {
+        return database;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setDatabase(String database) {
+        this.database = database;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     @Override
-    public List<Panel> getPanels() {
-        return panels;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Health health = (Health) o;
+        return Objects.equals(commit, health.commit) &&
+                Objects.equals(database, health.database) &&
+                Objects.equals(version, health.version);
     }
 
-    public void setPanels(List<Panel> panels) {
-        this.panels = panels;
+    @Override
+    public int hashCode() {
+        return Objects.hash(commit, database, version);
+    }
+
+    @Override
+    public String toString() {
+        return "Health{" +
+                "commit='" + commit + '\'' +
+                ", database='" + database + '\'' +
+                ", version='" + version + '\'' +
+                '}';
     }
 }

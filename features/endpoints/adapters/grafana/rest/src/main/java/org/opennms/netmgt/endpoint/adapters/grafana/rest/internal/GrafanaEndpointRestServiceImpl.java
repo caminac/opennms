@@ -39,6 +39,7 @@ import org.json.JSONArray;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.Dashboard;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClient;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClientFactory;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.SearchResult;
 import org.opennms.netmgt.endpoint.adapters.grafana.rest.GrafanaEndpointRestService;
 import org.opennms.netmgt.endpoints.api.EndpointDefinition;
 import org.opennms.netmgt.endpoints.api.EndpointDefinitionRepository;
@@ -58,8 +59,8 @@ public class GrafanaEndpointRestServiceImpl implements GrafanaEndpointRestServic
         final EndpointDefinition endpointDefinition = endpointDefinitionRepository.get(uid);
         final GrafanaClient client = grafanaClientFactory.createClient(endpointDefinition);
         try {
-            final List<Dashboard> dashboards = client.getDashboards();
-            return Response.ok().entity(new JSONArray(dashboards).toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
+            final List<SearchResult> searchResult = client.searchForDashboards("");
+            return Response.ok().entity(new JSONArray(searchResult).toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
         } catch (IOException ex) {
             // TODO MVR create error entity
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();

@@ -9,6 +9,9 @@
 ">
 
     <service interface="org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClientFactory" >
+        <service-properties>
+            <entry key="registration.export" value="true"/>
+        </service-properties>
         <bean class="org.opennms.netmgt.endpoint.adapters.grafana.client.GrafanaClientFactoryImpl" />
     </service>
 </blueprint>

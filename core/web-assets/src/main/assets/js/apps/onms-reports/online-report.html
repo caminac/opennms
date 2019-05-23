@@ -8,7 +8,7 @@
                 <div class="row">
                     <div class="col-4">
                         <form class="form" role="form">
-                            <div class="form-group">
+                            <div ng-show="parameters_by_name['GRAFANA_ENDPOINT_UID']" class="form-group">
                                 <label>Grafana Endpoint</label>
                                 <select class="form-control custom-select" ng-model="selectedEndpoint">
                                     <option ng-repeat="endpoint in endpoints" value="{{endpoint.uid}}">{{endpoint.uid + (endpoint.description ? "" : endpoint.description)}}</option>
@@ -16,15 +16,15 @@
                                 <!-- TODO MVR add baseHref -->
                                 <a href="/opennms/admin/endpoints/index.jsp">Configure Grafana Endpoints</a>
                             </div>
-                            <div class="form-group">
+                            <div ng-show="parameters_by_name['GRAFANA_DASHBOARD_UID']" class="form-group">
                                 <label>Grafana Dashboard</label>
-                                <select class="form-control custom-select">
+                                <select class="form-control custom-select" ng-model="selectedDashboard">
                                     <option ng-repeat="dashboard in dashboards" value="{{dashboard.uid}}">{{dashboard.title}}</option>
                                 </select>
                             </div>
                             <hr />
 
-                            <div ng-if="parameter.type === 'string'" class="form-group" ng-repeat="parameter in parameters">
+                            <div ng-if="parameter.type === 'string' && parameter.hidden !== true" class="form-group" ng-repeat="parameter in parameters">
                                 <label for="{{parameter.name}}" class="">{{parameter.displayName}}</label>
 
                                 <!--String -->

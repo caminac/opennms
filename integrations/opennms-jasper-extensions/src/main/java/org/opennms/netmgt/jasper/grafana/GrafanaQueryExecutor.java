@@ -31,12 +31,21 @@ package org.opennms.netmgt.jasper.grafana;
 import java.io.IOException;
 import java.util.Map;
 
+import org.opennms.core.soa.lookup.ServiceLookup;
+import org.opennms.core.soa.lookup.ServiceLookupBuilder;
+import org.opennms.core.soa.lookup.ServiceRegistryLookup;
+import org.opennms.core.soa.support.DefaultServiceRegistry;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.Dashboard;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClient;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClientFactory;
 import org.opennms.netmgt.endpoint.adapters.grafana.client.GrafanaClientImpl;
 import org.opennms.netmgt.endpoint.adapters.grafana.client.GrafanaServerConfiguration;
+import org.opennms.netmgt.endpoints.api.EndpointDefinition;
+import org.opennms.netmgt.endpoints.api.EndpointDefinitionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import net.sf.jasperreports.engine.JRDataset;
 import net.sf.jasperreports.engine.JRException;
@@ -46,6 +55,13 @@ import net.sf.jasperreports.engine.query.JRAbstractQueryExecuter;
 
 public class GrafanaQueryExecutor extends JRAbstractQueryExecuter {
     private static final Logger LOG = LoggerFactory.getLogger(GrafanaQueryExecutor.class);
+
+    private static final String GRAFANA_ENDPOINT_UID_PARM = "GRAFANA_ENDPOINT_UID";
+
+    @SuppressWarnings("unchecked")
+    private static final ServiceLookup<Class<?>, String> SERVICE_LOOKUP = new ServiceLookupBuilder(new ServiceRegistryLookup(DefaultServiceRegistry.INSTANCE))
+            .blocking()
+            .build();
 
     public GrafanaQueryExecutor(JasperReportsContext context, JRDataset dataset, Map<String,? extends JRValueParameter> parameters) {
         super(context, dataset, parameters);
@@ -66,8 +82,23 @@ public class GrafanaQueryExecutor extends JRAbstractQueryExecuter {
         final GrafanaQuery grafanaQuery = new GrafanaQuery(queryString);
         LOG.debug("Parsed query: {}", grafanaQuery);
 
-        final GrafanaServerConfiguration config = GrafanaServerConfiguration.fromEnv();
-        final GrafanaClient client = new GrafanaClientImpl(config);
+        final GrafanaClient client;
+        final String grafanaEndpointUid = getStringParameterOrProperty(GRAFANA_ENDPOINT_UID_PARM);
+        if (Strings.isNullOrEmpty(grafanaEndpointUid)) {
+            LOG.debug("No Grafana endpoint UID was set, using server configuration from the user's environment.");
+            final GrafanaServerConfiguration config = GrafanaServerConfiguration.fromEnv();
+            client = new GrafanaClientImpl(config);
+        } else {
+            final EndpointDefinitionRepository endpointDefinitionRepository = SERVICE_LOOKUP.lookup(EndpointDefinitionRepository.class, null);
+            final EndpointDefinition grafanaEndpointDefinition = endpointDefinitionRepository.get(grafanaEndpointUid);
+            if (grafanaEndpointDefinition == null) {
+                throw new IllegalArgumentException("No endpoint definition found for UID: " + grafanaEndpointUid);
+            }
+
+            final GrafanaClientFactory grafanaClientFactory = SERVICE_LOOKUP.lookup(GrafanaClientFactory.class, null);
+            client = grafanaClientFactory.createClient(grafanaEndpointDefinition);
+        }
+
         try {
             final Dashboard dashboard = client.getDashboardByUid(grafanaQuery.getDashboardUid());
             return new GrafanaPanelDatasource(client, dashboard, grafanaQuery);

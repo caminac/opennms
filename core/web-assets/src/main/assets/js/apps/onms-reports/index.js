@@ -1,4 +1,5 @@
 const angular = require('vendor/angular-js');
+const _ = require('underscore');
 require('../../lib/onms-http');
 require('angular-ui-router');
 
@@ -82,6 +83,7 @@ const onlineTemplate  = require('./online-report.html');
                 $scope.formats = [];
                 $scope.format = "PDF";
                 $scope.parameters = [];
+                $scope.parameters_by_name = {};
                 $scope.endpoints = [];
                 $scope.dashboards = [];
 
@@ -91,6 +93,20 @@ const onlineTemplate  = require('./online-report.html');
                     $scope.categories = response.categories;
                     $scope.formats = response.formats;
                     $scope.parameters = response.parameters;
+
+                    // Preprocessing
+                    $scope.parameters.forEach(p => {
+                        // Mark parameters which have special handling
+                        if (p.name === 'GRAFANA_ENDPOINT_UID') {
+                            p.hidden = true;
+                        }
+                        if (p.name === 'GRAFANA_DASHBOARD_UID') {
+                            p.hidden = true;
+                        }
+
+                        // Index the parameters by name
+                        $scope.parameters_by_name[p.name] = p;
+                    });
 
                     // In order to have the ui look the same as before, just order the parameters
                     var order = ['string', 'integer', 'float', 'double', 'date'];
@@ -114,7 +130,7 @@ const onlineTemplate  = require('./online-report.html');
                 $scope.$watch("selectedEndpoint", function(newValue, oldValue) {
                     console.log("Endpoint changed", newValue, oldValue);
                     if (newValue) {
-                        DashboardService.list({uid: 'GRAFANA_1'}, function(response) {
+                        DashboardService.list({uid: newValue}, function(response) {
                             console.log("SUCCESS", response);
                             $scope.dashboards = response;
                         }, function(response) {
@@ -122,15 +138,28 @@ const onlineTemplate  = require('./online-report.html');
                         })
                     }
                 });
-
-
             };
 
             $scope.preview = function() {
+                var parameters = angular.copy($scope.parameters);
+                // Include the dashboard and endpoints UIDs
+                parameters.push({
+                    "name": "GRAFANA_ENDPOINT_UID",
+                    "displayName": "endpoint uid",
+                    "value": $scope.selectedEndpoint,
+                    "type": "string"
+                });
+                parameters.push({
+                    "name": "GRAFANA_DASHBOARD_UID",
+                    "displayName": "dashboard uid",
+                    "value": $scope.selectedDashboard,
+                    "type": "string"
+                });
+
                 $http({
                     method: 'POST',
                     url: 'rest/reports/' + $stateParams.id,
-                    data:  {id:$stateParams.id, parameters: $scope.parameters, format: $scope.format},
+                    data:  {id:$stateParams.id, parameters: parameters, format: $scope.format},
                     responseType:  'arraybuffer'
                 }).then(function (response) {
                         console.log("SUCCESS", response);

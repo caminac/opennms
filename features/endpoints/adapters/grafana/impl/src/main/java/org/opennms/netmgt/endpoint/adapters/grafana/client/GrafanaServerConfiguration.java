@@ -35,38 +35,116 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-/**
- * TODO MVR: Migrate this to immutable with builder pattern
- */
 public class GrafanaServerConfiguration {
+    public static final long DEFAULT_CONNECT_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(10);
+    public static final long DEFAULT_READ_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(10);
+
     private final String url;
     private final String apiKey;
-    private final int connectTimeoutSeconds;
-    private final int readTimeoutSeconds;
+    private final long connectTimeoutMs;
+    private final long readTimeoutMs;
+    private final boolean strictSsl;
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private String url;
+        private String apiKey;
+        private boolean strictSsl = true;
+        private long connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MS;
+        private long readTimeoutMs = DEFAULT_READ_TIMEOUT_MS;
+
+        public Builder withUrl(String url) {
+            this.url = url;
+            return this;
+        }
+
+        public Builder withApiKey(String apiKey) {
+            this.apiKey = apiKey;
+            return this;
+        }
+
+        public Builder withStrictSsl(boolean strictSsl) {
+            this.strictSsl = strictSsl;
+            return this;
+        }
+
+        public Builder withConnectTimeout(long duration, TimeUnit unit) {
+            this.connectTimeoutMs = unit.toMillis(duration);
+            return this;
+        }
+
+        public Builder withReadTimeout(long duration, TimeUnit unit) {
+            this.readTimeoutMs = unit.toMillis(duration);
+            return this;
+        }
+
+        public GrafanaServerConfiguration build() {
+            Objects.requireNonNull(url, "url is required");
+            Objects.requireNonNull(apiKey, "apiKey is required");
+            return new GrafanaServerConfiguration(this);
+        }
+    }
+
+    private GrafanaServerConfiguration(Builder builder) {
+        this.url = builder.url;
+        this.apiKey = builder.apiKey;
+        this.strictSsl = builder.strictSsl;
+        this.connectTimeoutMs = builder.connectTimeoutMs;
+        this.readTimeoutMs = builder.readTimeoutMs;
+    }
 
     public static GrafanaServerConfiguration fromEnv() {
-        final File configFile = Paths.get(System.getProperty("user.home"), ".grafana", "server.properties").toFile(); // TODO MVr this is bäh
+        final File configFile = Paths.get(System.getProperty("user.home"), ".grafana", "server.properties").toFile();
 
         try (InputStream input = new FileInputStream(configFile)) {
             final Properties prop = new Properties();
             prop.load(input);
+
+            // Required properties
             final String url = prop.getProperty("url");
             final String apiKey = prop.getProperty("apiKey");
-            // TODO MVR: Be more defensive and add defaults
-            final int connectTimeout = Integer.parseInt(prop.getProperty("connectTimeout"));
-            final int readTimeout = Integer.parseInt(prop.getProperty("readTimeout"));
-            return new GrafanaServerConfiguration(url, apiKey, connectTimeout, readTimeout);
+
+            final GrafanaServerConfiguration.Builder builder = GrafanaServerConfiguration.builder()
+                    .withUrl(url)
+                    .withApiKey(apiKey);
+
+            // Optional properties
+            getLong(prop, "connectTimeout", timeout -> builder.withConnectTimeout(timeout, TimeUnit.SECONDS));
+            getLong(prop, "readTimeout", timeout -> builder.withReadTimeout(timeout, TimeUnit.SECONDS));
+            getBool(prop, "strictSsl", builder::withStrictSsl);
+
+            return builder.build();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public GrafanaServerConfiguration(String url, String apiKey, int connectTimeoutSeconds, int readTimeoutSeconds) {
-        this.url = Objects.requireNonNull(url);
-        this.apiKey = Objects.requireNonNull(apiKey);
-        this.connectTimeoutSeconds = connectTimeoutSeconds;
-        this.readTimeoutSeconds = readTimeoutSeconds;
+    private static void getLong(Properties props, String key, Consumer<Long> consumer) {
+        final String value = props.getProperty(key);
+        if (value == null) {
+            return;
+        }
+        try {
+            final Long longValue = Long.parseLong(value);
+            consumer.accept(longValue);
+        } catch (NumberFormatException nfe) {
+            // ignore
+        }
+    }
+
+    private static void getBool(Properties props, String key, Consumer<Boolean> consumer) {
+        final String value = props.getProperty(key);
+        if (value == null) {
+            return;
+        }
+        final Boolean boolValue = Boolean.parseBoolean(value);
+        consumer.accept(boolValue);
     }
 
     public String getUrl() {
@@ -77,12 +155,33 @@ public class GrafanaServerConfiguration {
         return apiKey;
     }
 
-    public int getConnectTimeoutSeconds() {
-        return connectTimeoutSeconds;
+    public boolean isStrictSsl() {
+        return strictSsl;
     }
 
-    public int getReadTimeoutSeconds() {
-        return readTimeoutSeconds;
+    public long getConnectTimeoutMs() {
+        return connectTimeoutMs;
+    }
+
+    public long getReadTimeoutMs() {
+        return readTimeoutMs;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GrafanaServerConfiguration that = (GrafanaServerConfiguration) o;
+        return connectTimeoutMs == that.connectTimeoutMs &&
+                readTimeoutMs == that.readTimeoutMs &&
+                strictSsl == that.strictSsl &&
+                Objects.equals(url, that.url) &&
+                Objects.equals(apiKey, that.apiKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(url, apiKey, connectTimeoutMs, readTimeoutMs, strictSsl);
     }
 
     @Override
@@ -90,8 +189,9 @@ public class GrafanaServerConfiguration {
         return "GrafanaServerConfiguration{" +
                 "url='" + url + '\'' +
                 ", apiKey='" + apiKey + '\'' +
-                ", connectTimeoutSeconds=" + connectTimeoutSeconds +
-                ", readTimeoutSeconds=" + readTimeoutSeconds +
+                ", connectTimeoutMs=" + connectTimeoutMs +
+                ", readTimeoutMs=" + readTimeoutMs +
+                ", strictSsl=" + strictSsl +
                 '}';
     }
 }

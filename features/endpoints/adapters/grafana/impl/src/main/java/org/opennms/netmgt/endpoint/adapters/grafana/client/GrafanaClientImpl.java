@@ -48,7 +48,9 @@ import javax.net.ssl.X509TrustManager;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.GrafanaClient;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.Dashboard;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.DashboardWithMeta;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.Health;
 import org.opennms.netmgt.endpoint.adapters.grafana.api.Panel;
+import org.opennms.netmgt.endpoint.adapters.grafana.api.SearchResult;
 
 import com.google.gson.Gson;
 
@@ -64,24 +66,26 @@ public class GrafanaClientImpl implements GrafanaClient {
     private final OkHttpClient client;
     private final HttpUrl baseUrl;
 
-    public GrafanaClientImpl(GrafanaServerConfiguration grafanaServerConfiguration) {
-        this.config = Objects.requireNonNull(grafanaServerConfiguration);
-        baseUrl = HttpUrl.parse(grafanaServerConfiguration.getUrl());
+    public GrafanaClientImpl(GrafanaServerConfiguration config) {
+        this.config = Objects.requireNonNull(config);
+        baseUrl = HttpUrl.parse(config.getUrl());
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .connectTimeout(config.getConnectTimeoutSeconds(), TimeUnit.SECONDS)
-                .readTimeout(config.getReadTimeoutSeconds(), TimeUnit.SECONDS);
-        builder = configureToIgnoreCertificate(builder);
+                .connectTimeout(config.getConnectTimeoutMs(), TimeUnit.MILLISECONDS)
+                .readTimeout(config.getReadTimeoutMs(), TimeUnit.MILLISECONDS);
+        if (!config.isStrictSsl()) {
+            builder = configureToIgnoreCertificate(builder);
+        }
         client = builder.build();
     }
 
     @Override
-    public List<Dashboard> getDashboards() throws IOException {
+    public Health getServerHealth() throws IOException {
         final HttpUrl url = baseUrl.newBuilder()
                 .addPathSegment("api")
-                .addPathSegment("search")
-                .query("query=&type=dash-db")
+                .addPathSegment("health")
                 .build();
+
         final Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer " + config.getApiKey())
@@ -92,8 +96,32 @@ public class GrafanaClientImpl implements GrafanaClient {
                 throw new IOException("Request failed: " + response.body().string());
             }
             final String json = response.body().string();
-            final Dashboard[] dashboards = gson.fromJson(json, Dashboard[].class);
-            return Arrays.asList(dashboards);
+            return gson.fromJson(json, Health.class);
+        }
+    }
+
+    @Override
+    public List<SearchResult> searchForDashboards(String query) throws IOException {
+        final HttpUrl.Builder builder = baseUrl.newBuilder()
+                .addPathSegment("api")
+                .addPathSegment("search")
+                .addQueryParameter("type", "dash-db");
+        if (query != null) {
+            builder.addQueryParameter("query", query);
+        }
+
+        final Request request = new Request.Builder()
+                .url(builder.build())
+                .addHeader("Authorization", "Bearer " + config.getApiKey())
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Request failed: " + response.body().string());
+            }
+            final String json = response.body().string();
+            final SearchResult[] results = gson.fromJson(json, SearchResult[].class);
+            return Arrays.asList(results);
         }
     }
 
@@ -127,7 +155,7 @@ public class GrafanaClientImpl implements GrafanaClient {
                 .addPathSegment("render")
                 .addPathSegment("d-solo")
                 .addPathSegment(dashboard.getUid())
-                .addPathSegments("flow"); //FIXME: What should this be?
+                .addPathSegments("z"); // We need some string here, but it doesn't seem to matter what it is
 
         // Query parameters
         builder.addQueryParameter("panelId", Integer.toString(panel.getId()))
@@ -136,6 +164,8 @@ public class GrafanaClientImpl implements GrafanaClient {
                 .addQueryParameter("width", Integer.toString(width))
                 .addQueryParameter("height", Integer.toString(height))
                 .addQueryParameter("theme", "light"); // Use the light theme
+        // TODO: Add support for timezone - passed as TZ=X via environment variable to PhantomJS
+        // See https://github.com/grafana/grafana/blob/2fff8f77dcdc90ab9a4890eeed95d8f3dced370b/pkg/services/rendering/phantomjs.go
         variables.forEach((k,v) -> builder.addQueryParameter("var-"+ k, v));
 
         final Request request = new Request.Builder()
@@ -143,7 +173,6 @@ public class GrafanaClientImpl implements GrafanaClient {
                 .addHeader("Authorization", "Bearer " + config.getApiKey())
                 .build();
 
-        //System.out.println("MOO: " + request);
         try (Response response = client.newCall(request).execute()) {
             try (InputStream is = response.body().byteStream()) {
                 return inputStreamToByteArray(is);
@@ -164,8 +193,6 @@ public class GrafanaClientImpl implements GrafanaClient {
 
     private static OkHttpClient.Builder configureToIgnoreCertificate(OkHttpClient.Builder builder) {
         try {
-
-            // TODO MVR do we really wanna do this?
             // Create a trust manager that does not validate certificate chains
             final TrustManager[] trustAllCerts = new TrustManager[] {
                     new X509TrustManager() {

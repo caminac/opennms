@@ -10,5 +10,10 @@
 
     <bean id="endpointDefinitionRepository" class="org.opennms.netmgt.endpoints.impl.EndpointDefinitionRepositoryImpl">
     </bean>
-    <service interface="org.opennms.netmgt.endpoints.api.EndpointDefinitionRepository" ref="endpointDefinitionRepository" />
+    <service interface="org.opennms.netmgt.endpoints.api.EndpointDefinitionRepository" ref="endpointDefinitionRepository" >
+        <service-properties>
+            <entry key="registration.export" value="true"/>
+        </service-properties>
+    </service>
+
 </blueprint>
