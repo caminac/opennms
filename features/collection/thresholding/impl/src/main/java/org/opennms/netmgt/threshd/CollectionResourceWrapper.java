@@ -366,7 +366,8 @@ public class CollectionResourceWrapper {
     public boolean isValidInterfaceResource() {
         try {
             if(m_ifindex == null) {
-                return false;
+                return true; // FIXME - allow null required for Telemetry ifFace Resources
+                // TODO - determine if the calling test can simply be removed
             } else if(Integer.parseInt(m_ifindex) < 0) {
                 return false;
             }
